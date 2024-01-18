@@ -9,14 +9,14 @@ This project was forked from [autovenv by timothybrown](https://github.com/timot
 
 The project was forked because I wanted to add a few features and improve the plugin:
 * The plugin did not work with the new version of fish, and I wanted to keep it as simple as possible.
-* The plugin looked for virtual environments in the current directory, but not in the specified sub-directory. For example I store virtual env in a sub-directory called `.venv`.
+* The plugin looked for virtual environments in the current directory, but not in the specified sub-directory. For example I store virtual env in a  called `~/.virtualenvs`.
 * Apply virtual environment when run a terminal in a directory with a custom virtual environment.
 * Search for virtual environments in the parent directories from bottom to top, instead of top to bottom it was implemented in the original plugin.
 
 ## Install
 Installation with [Fisher][fisher]:
 
-    fisher install aohorodnyk/fish-autovenv
+    fisher install osmollo/fish-autovenv
 
 ## About
 Do you like the way Pyenv automatically switches between enviroments when you change directories and wish

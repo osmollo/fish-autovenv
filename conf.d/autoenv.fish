@@ -20,47 +20,33 @@ function applyAutoenv
   # contains a `bin/activate.fish` file. If a venv is found we go ahead and break out of the loop,
   # otherwise continue. We go through all of this instead of just checking the CWD to handle cases
   # where the user moves into a sub-directory of the venv.
-  set _tree (pwd)
-  while test $_tree != "/"
-    set -l _activate (string join '/' "$_tree" "$autovenv_dir" "bin/activate.fish")
-    set -l _activate (string replace -a "//" "/" "$_activate")
 
-    if test -e "$_activate"
-      set _source "$_activate"
-      if test "$autovenv_announce" = "yes"
-        set -g __autovenv_old $__autovenv_new
-        set -g __autovenv_new (basename $_tree)
-      end
-      break
-    end
-
-
-    set _tree (dirname $_tree)
-  end
-  # If we're *not* in an active venv and the venv source dir exists we activate it and return.
-  if test -z "$VIRTUAL_ENV" -a -e "$_source"
-    source "$_source"
-    if test "$autovenv_announce" = "yes"
-      echo "Activated Virtual Environment ($__autovenv_new)"
-    end
-    # Next we check to see if we're already in an active venv. If so we proceed with further tests.
-  else if test -n "$VIRTUAL_ENV"
-    # Check to see if our CWD is inside the venv directory.
-    set _dir (string match -n "$VIRTUAL_ENV*" "$_source")
-    # If we're no longer inside the venv dirctory deactivate it and return.
-    if test -z "$_dir" -a ! -e "$_source"
-      deactivate
-      if test "$autovenv_announce" = "yes"
-        echo "Deactivated Virtual Enviroment ($__autovenv_new)"
-        set -e __autovenv_new
-        set -e __autovenv_old
-      end
-      # If we've switched into a different venv directory, deactivate the old and activate the new.
-    else if test -z "$_dir" -a -e "$_source"
-      deactivate
-      source "$_source"
-      if test "$autovenv_announce" = "yes"
-        echo "Switched Virtual Environments ($__autovenv_old => $__autovenv_new)"
+  set _pwd (pwd)
+  if string match -q '/*' "$autovenv_dir"
+    set -l _basename (basename $_pwd)
+    if test -d $autovenv_dir/$_basename
+      set _activate (string join '/' "$autovenv_dir" "$_basename" "bin/activate.fish")
+      echo "_pwd: $_pwd"
+      echo "_basename: $_basename"
+      echo "_activate: $_activate"
+      # if virtual_env is not activated
+      if test -z "$VIRTUAL_ENV"
+        source "$_activate"
+        cd (pwd)
+        set _active_new $_basename
+        echo "_active_new: $_active_new"
+        if test "$autovenv_announce" = "yes"
+          echo "Activated Virtual Environment ($_active_new)"
+        end
+      # else if there is and activated venv
+      else
+        # si el virtualenv cargado no esta en la ruta...
+        if ! string match -q "*$_active_new*" "$_pwd"
+          deactivate
+          if test "$autovenv_announce" = "yes"
+            echo "Deactivated Virtual Enviroment ($_active_new)"
+          end
+        end
       end
     end
   end
